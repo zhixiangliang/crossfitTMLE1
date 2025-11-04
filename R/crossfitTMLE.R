@@ -74,7 +74,7 @@ for(cf in 1:num_cf){
                        seed=seed1)}, silent = TRUE)
 
     if (inherits(fit_result, "try-error")) {
-      fit_sngle <-  data.frame(rd=NA, var = NA , S1 = NA, S0 = NA)
+      fit_sngle <-  data.frame(rd=NA, var = NA )
     } else {
       fit_sngle <- fit_result
     }
