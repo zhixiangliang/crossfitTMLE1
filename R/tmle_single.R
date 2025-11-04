@@ -322,7 +322,7 @@ tmle_single = function(data,
   S1 = mean(S1)
   S0 = mean(S0)
 
-  res <- data.frame(rd=rd, var = var1 , S1 = S1 , S0 = S0)
+  res <- data.frame(rd=rd, var = var1 )
 
   return(res)
 }
