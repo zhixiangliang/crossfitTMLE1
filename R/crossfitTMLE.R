@@ -30,7 +30,7 @@
 #' sum(1:5)
 #'
 #'
-crossfitTMLE <- function(data,
+crossfitTMLE1 <- function(data,
                          exposure,
                          outcome,
                          covarsT,
