@@ -56,7 +56,7 @@ crossfitTMLE <- function(data,
   if(is.null(gbounds)) gbounds = 5/sqrt(n)/log(n)
   #################### step 2 and 3 ########################
 
-  for(cf in 1:num_cf){
+for(cf in 1:num_cf){
     seed1 = cf_seed[cf]
     fit_result = try({
                tmle_single(data,
@@ -74,44 +74,32 @@ crossfitTMLE <- function(data,
                        seed=seed1)}, silent = TRUE)
 
     if (inherits(fit_result, "try-error")) {
-      fit_sngle <-  data.frame(rd=NA, var = NA, P1=NA, P0=NA, OR=NA, logOR=NA)
+      fit_sngle <-  data.frame(rd=NA, var = NA)
     } else {
-      # 假设fit_result返回了P1和P0
-      P1 <- fit_result$P1
-      P0 <- fit_result$P0
-      OR <- (P1/(1-P1)) / (P0/(1-P0))
-      logOR <- log(OR)
-      fit_sngle <- data.frame(rd=fit_result$rd, var=fit_result$var, P1=P1, P0=P0, OR=OR, logOR=logOR)
+      fit_sngle <- fit_result
     }
 
     runs[[cf]] <- fit_sngle
   }
-  
- res = dplyr::bind_rows(runs)
 
-  # 我们使用logOR来计算，因为logOR更接近正态分布
+  res = dplyr::bind_rows(runs)
+
   if(stat == "mean"){
-    mean_logOR <- mean(res$logOR, na.rm = TRUE)
-    se_logOR <- sd(res$logOR, na.rm = TRUE) / sqrt(sum(!is.na(res$logOR)))
-    OR_point <- exp(mean_logOR)
+    medians <- apply(res, 2, mean, na.rm = TRUE)
+    res <- res %>% mutate(var0 = var + (rd - medians[1])^2)
+    results <- apply(res, 2, mean, na.rm = TRUE)
   }
   if(stat == "median"){
-    # 注意：中位数在对数尺度上不好直接平均，所以我们还是用均值
-    mean_logOR <- mean(res$logOR, na.rm = TRUE)
-    se_logOR <- sd(res$logOR, na.rm = TRUE) / sqrt(sum(!is.na(res$logOR)))
-    OR_point <- exp(mean_logOR)
+    medians <- apply(res, 2, median, na.rm = TRUE)
+    res <- res %>% mutate(var0 = var + (rd - medians[1])^2)
+    results <- apply(res, 2, median, na.rm = TRUE)
   }
-
-  # 计算置信区间
   t.value = qt((1-conf.level)/2, nrow(data), lower.tail = F)
-  l_ci_logOR = mean_logOR - t.value * se_logOR
-  u_ci_logOR = mean_logOR + t.value * se_logOR
 
-  # 指数化
-  l_ci_OR = exp(l_ci_logOR)
-  u_ci_OR = exp(u_ci_logOR)
+  l_ci = results[1] - t.value*sqrt(results[3])
+  u_ci = results[1] + t.value*sqrt(results[3])
 
-  res_OR = tibble(OR = OR_point, se_logOR = se_logOR, lower.ci = l_ci_OR, upper.ci = u_ci_OR, res = res)
+  res1 = tibble(ATE=results[1], se = sqrt(results[3]), lower.ci = l_ci, upper.ci = u_ci)
 
-  return(res_OR)
+  return(res1)
 }
