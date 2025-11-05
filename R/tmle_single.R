@@ -304,7 +304,11 @@ tmle_single = function(data,
 
 
   ############ step 1.6 ########################
-
+  r1 = r0 = rd = NULL
+  r1_0 <- list()
+  if1 = if0 = ifd = list()
+  v1 = v0 = vd = NULL
+  rdc <- NULL
   mu_summ <- list(); n <- NULL
 
   
