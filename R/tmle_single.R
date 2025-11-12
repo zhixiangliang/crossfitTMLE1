@@ -328,7 +328,7 @@ tmle_single = function(data,
   RR = S1/S0
   logRR = log(RR)
   
-  res <- data.frame(rd=rd, var = var1, S1 = S1, S0 = S0 , MOR = MOR , RR = RR)
+  res <- data.frame(rd=rd, var = var1, S1 = S1, S0 = S0 , MOR = MOR , RR = RR , logRR = logRR)
 
   return(res)
 }
